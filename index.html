@@ -1,13 +1,190 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manga-Teca Educativa</title>
+<style>
+  /* Estilos y diseño visual de la App */
+  :root { 
+    --primary: #4F46E5; 
+    --primary-dark: #3730A3;
+    --bg: #F3F4F6; 
+    --text: #1F2937; 
+  }
+  body { 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+    background: var(--bg); 
+    color: var(--text); 
+    margin: 0; 
+    padding: 0; 
+  }
+  header { 
+    background: var(--primary); 
+    color: white; 
+    padding: 1.5rem; 
+    text-align: center; 
+    position: sticky; 
+    top: 0; 
+    z-index: 100; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
+  }
+  h1 { margin: 0; font-size: 1.8rem; letter-spacing: 0.5px; }
+  p.subtitle { margin: 0.5rem 0 0; font-size: 0.95rem; opacity: 0.9; }
+  .hint { text-align: center; color: #6b7280; font-size: 0.9rem; margin: 1.5rem 0 0.5rem; font-weight: 500;}
+  
+  .container { 
+    padding: 1.5rem; 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 1.5rem; 
+    max-width: 1200px; 
+    margin: auto; 
+    padding-bottom: 3rem;
+  }
+  
+  /* Efecto 3D de las tarjetas */
+  .card { 
+    perspective: 1000px; 
+    height: 320px; 
+    cursor: pointer; 
+  }
+  .card-inner { 
+    width: 100%; 
+    height: 100%; 
+    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); 
+    transform-style: preserve-3d; 
+    position: relative; 
+  }
+  .card.flipped .card-inner { 
+    transform: rotateY(180deg); 
+  }
+  .card-face { 
+    width: 100%; 
+    height: 100%; 
+    position: absolute; 
+    backface-visibility: hidden; 
+    border-radius: 16px; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+    padding: 1.5rem; 
+    box-sizing: border-box; 
+    display: flex; 
+    flex-direction: column; 
+  }
+  
+  /* Cara A (Frente) */
+  .card-front { 
+    background: white; 
+    align-items: center; 
+    justify-content: center; 
+    text-align: center; 
+    border-top: 6px solid var(--primary); 
+  }
+  .card-front h2 { color: var(--text); margin: 0 0 0.5rem 0; font-size: 1.4rem; }
+  .card-front .author { font-size: 0.95rem; color: #6b7280; margin-bottom: 1.5rem; font-style: italic; }
+  .card-front .subject { 
+    display: inline-block; 
+    background: #EEF2FF; 
+    color: var(--primary-dark); 
+    padding: 0.4rem 1rem; 
+    border-radius: 30px; 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+  }
+  .rotate-icon { margin-top: auto; font-size: 0.85rem; color: #9ca3af; }
 
+  /* Cara B (Reverso) */
+  .card-back { 
+    background: var(--primary); 
+    color: white; 
+    transform: rotateY(180deg); 
+    overflow-y: auto; 
+  }
+  .card-back h3 { 
+    margin: 0 0 0.5rem 0; 
+    font-size: 1.05rem; 
+    color: #A5B4FC; 
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+  }
+  .card-back p { font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.2rem; }
+  
+  /* Scrollbar estético para el reverso */
+  .card-back::-webkit-scrollbar { width: 6px; }
+  .card-back::-webkit-scrollbar-track { background: transparent; }
+  .card-back::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+  <header>
+    <h1>📚 Manga-Teca Educativa</h1>
+    <p class="subtitle">El Manga como recurso didáctico transversal</p>
+  </header>
+  
+  <div class="hint">Toca las tarjetas para ver la actividad 🔄</div>
+  <div class="container" id="gallery"></div>
+
+  <script>
+    // Base de datos de las 26 obras
+    const mangas = [
+      { title: "Hataraku Saibou", author: "Akane Shimizu", subject: "Biología (12-16 años)", context: "Antropomorfiza las células del cuerpo humano y patógenos, mostrando cómo reacciona el sistema inmunológico ante alergias, virus o bacterias.", activity: "Crear un diagrama anatómico real comparando la ficción del manga con el proceso biológico real." },
+      { title: "Pies Descalzos", author: "Keiji Nakazawa", subject: "Historia (+15 años)", context: "Testimonio autobiográfico de un superviviente de la bomba atómica de Hiroshima. Muestra los horrores de la guerra y el imperialismo.", activity: "Lectura de fragmentos y debate en el aula sobre la ética en la guerra y la memoria histórica." },
+      { title: "A Silent Voice", author: "Yoshitoki Oima", subject: "Valores Éticos (12-18 años)", context: "Explora las consecuencias del acoso escolar desde la perspectiva del acosador y de la víctima (una niña sorda). Trata la inclusión y salud mental.", activity: "Role-playing para identificar conductas de acoso pasivo y activo, y taller de lengua de signos." },
+      { title: "Dr. Stone", author: "Riichiro Inagaki", subject: "Física y Química (10-16 años)", context: "Un joven genio despierta milenios después de un cataclismo para reconstruir la civilización desde cero usando el método científico.", activity: "Replicar un invento mostrado en el manga (ej. jabón o pila) documentando hipótesis y resultados." },
+      { title: "Fullmetal Alchemist", author: "Hiromu Arakawa", subject: "Filosofía (+14 años)", context: "Utiliza la alquimia para explorar la ley del intercambio equivalente, el valor del alma humana y los límites éticos de la ciencia.", activity: "Debate socrático: ¿Debería la ciencia tener límites morales o el progreso justifica todo?" },
+      { title: "Liar Game", author: "Shinobu Kaitani", subject: "Matemáticas (+16 años)", context: "Torneo de engaños donde las resoluciones se basan puramente en Teoría de Juegos, probabilidad, estadística y pensamiento lateral.", activity: "Simular el 'Juego de la Minoría' en clase y analizar la probabilidad y el equilibrio de Nash." },
+      { title: "Blue Period", author: "Tsubasa Yamaguchi", subject: "Educación Plástica (14-18 años)", context: "Desmitifica el 'talento innato' y explica de forma didáctica técnicas reales de composición, teoría del color y el proceso creativo.", activity: "Pintar un paisaje utilizando un solo tono (monocromatismo) para transmitir una emoción." },
+      { title: "Death Note", author: "Tsugumi Ohba", subject: "Filosofía, Debate (+15 años)", context: "Un estudiante usa un cuaderno letal para erradicar el crimen y crear un 'mundo perfecto', convirtiéndose en un dictador moral.", activity: "Debate dividido: postura utilitarista (el fin justifica los medios) vs. el Estado de Derecho." },
+      { title: "Silver Spoon", author: "Hiromu Arakawa", subject: "Biología, Economía (12-18 años)", context: "Un estudiante de ciudad aprende en una escuela agrícola sobre el trabajo ganadero, la producción de alimentos y la ética de consumo.", activity: "Rastrear el ciclo económico de un alimento cotidiano o diseñar el plan de un huerto escolar." },
+      { title: "Vinland Saga", author: "Makoto Yukimura", subject: "Historia Universal (+16 años)", context: "Ambientada en la Era Vikinga. Evoluciona de una historia de venganza a una profunda reflexión sobre el pacifismo y la esclavitud.", activity: "Mapear rutas de expansión vikinga reales y ensayo sobre el impacto de la esclavitud medieval." },
+      { title: "Spy x Family", author: "Tatsuya Endo", subject: "H. Contemporánea (10-16 años)", context: "Comedia sobre una familia falsa en un mundo ficticio que es una alegoría directa de la Alemania dividida durante la Guerra Fría.", activity: "Identificar en el manga elementos reales de la Guerra Fría: espionaje, policía secreta y propaganda." },
+      { title: "Planetes", author: "Makoto Yukimura", subject: "Física, C. Ambientales (14-18 años)", context: "Año 2075. Basureros espaciales de clase trabajadora limpian la órbita de escombros peligrosos que amenazan satélites y naves.", activity: "Investigar el Síndrome de Kessler y usar cinemática para explicar la peligrosidad de la basura espacial." },
+      { title: "Yotsuba&!", author: "Kiyohiko Azuma", subject: "C. del Medio (6-12 años)", context: "Sigue a una niña de 5 años que experimenta situaciones rutinarias como descubrimientos extraordinarios. Fomenta la curiosidad.", activity: "Crear un 'Cuaderno de Descubrimientos' para investigar cómo funcionan cosas cotidianas." },
+      { title: "Arte", author: "Kei Ohkubo", subject: "H. del Arte (12-18 años)", context: "Renacimiento italiano. Una aristócrata busca ser pintora en un gremio de hombres. Muestra técnicas de pintura al fresco y machismo histórico.", activity: "Investigar cómo se fabricaban pigmentos históricos y crear pintura al temple con elementos naturales." },
+      { title: "Golden Kamuy", author: "Satoru Noda", subject: "Antropología (+16 años)", context: "Documenta con precisión académica el idioma, técnicas de caza y creencias animistas del pueblo indígena Ainu en Hokkaido.", activity: "Analizar la asimilación cultural del pueblo Ainu y compararla con otros pueblos indígenas." },
+      { title: "Issak", author: "Shinji Makari", subject: "H. Moderna, Tecnología (+15 años)", context: "Guerra de los Treinta Años (1620). Recrea tácticas bélicas, asedios, primeros usos de armas de fuego y tensiones religiosas en Europa.", activity: "Diseñar el plano de una fortaleza de 'traza italiana' y explicar cómo la artillería cambió la arquitectura." },
+      { title: "Mensaje a Adolf", author: "Osamu Tezuka", subject: "H. Contemporánea (+16 años)", context: "Entrelaza las vidas de Hitler y dos niños llamados Adolf en la 2ª Guerra Mundial. Disecciona el nazismo, el racismo y la propaganda.", activity: "Analizar técnicas de lavado de cerebro y compararlas con las fake news y los discursos de odio." },
+      { title: "Barrio Lejano", author: "Jiro Taniguchi", subject: "Psicología (14-18 años)", context: "Un adulto viaja en el tiempo al cuerpo de su 'yo' adolescente. Desmitifica a los padres y debate sobre el determinismo y el libre albedrío.", activity: "Escribir cartas introspectivas desde la perspectiva de su yo del futuro dando consejos a su yo adolescente." },
+      { title: "Monster", author: "Naoki Urasawa", subject: "Filosofía, Psicología (+16 años)", context: "Un médico salva a un niño que resulta ser un sociópata producto de experimentos en orfanatos secretos de la RDA. Explora el origen del mal.", activity: "Debate sobre la ética del triaje médico e investigación sobre la Stasi y programas de la Guerra Fría." },
+      { title: "Captain Tsubasa", author: "Yoichi Takahashi", subject: "E. Física (10-16 años)", context: "Tratado sobre la perseverancia extrema, el esfuerzo colectivo frente al individualismo, la deportividad y la gestión de la frustración.", activity: "Torneo deportivo evaluado por 'juego limpio' y cálculo físico de la parábola y efecto Magnus de un balón." },
+      { title: "Ranma ½", author: "Rumiko Takahashi", subject: "Sociología, Género (12-18 años)", context: "Un chico se transforma en chica al mojarse. Comedia pionera para hablar de los roles de género y las expectativas sociales.", activity: "Taller sobre estereotipos: analizar cómo el trato cambia según la apariencia y crear un decálogo." },
+      { title: "Saga de las Sirenas", author: "Rumiko Takahashi", subject: "Filosofía, Ética (+16 años)", context: "Comer carne de sirena da la inmortalidad o te convierte en monstruo. Explora el aislamiento, el miedo a la muerte y el peso de la eternidad.", activity: "Debate cruzando el mito de la inmortalidad con el movimiento actual del Transhumanismo." },
+      { title: "Doraemon", author: "Fujiko F. Fujio", subject: "C. de la Naturaleza (6-12 años)", context: "Un gato robot ayuda a un niño, pero el mal uso genera problemas. Enseña causa-efecto, responsabilidad y uso ético de la tecnología.", activity: "Diseñar un 'invento mágico' para solucionar un problema del colegio redactando sus límites de uso." },
+      { title: "El dulce hogar de Chi", author: "Kanata Konami", subject: "E. Emocional (6-10 años)", context: "Muestra el mundo desde la perspectiva (y altura) de un gato. Trabaja la empatía pura, el respeto animal y la responsabilidad.", activity: "Dibujar un cómic narrando una situación normal en casa desde la perspectiva de un animal." },
+      { title: "Gon", author: "Masashi Tanaka", subject: "Pre-lectura (3-8 años)", context: "Manga mudo sobre un pequeño dinosaurio gruñón. Desarrolla la atención visual y la deducción narrativa en pre-lectores.", activity: "Leer las imágenes en asamblea: deducir emociones por expresiones faciales y hacer onomatopeyas." },
+      { title: "Pokémon Aventuras", author: "Hidenori Kusaka", subject: "C. Naturales (8-12 años)", context: "Muestra ecosistemas variados, adaptación al medio ambiente, el cuidado de los seres vivos y el trabajo en equipo continuo.", activity: "Asignar un bioma real, investigar sus condiciones y deducir qué criaturas podrían sobrevivir allí." }
+    ];
+
+    const gallery = document.getElementById('gallery');
+
+    // Generador automático de tarjetas
+    mangas.forEach(manga => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <h2>${manga.title}</h2>
+            <div class="author">${manga.author}</div>
+            <div class="subject">${manga.subject}</div>
+            <div class="rotate-icon">Tocar para girar ↺</div>
+          </div>
+          <div class="card-face card-back">
+            <h3>📖 Contexto para el aula</h3>
+            <p>${manga.context}</p>
+            <h3>🎯 Actividad propuesta</h3>
+            <p>${manga.activity}</p>
+          </div>
+        </div>
+      `;
+      // Al hacer clic, se añade/quita la clase que hace girar la tarjeta
+      card.addEventListener('click', () => {
+        card.classList.toggle('flipped');
+      });
+      gallery.appendChild(card);
+    });
+  </script>
+</body>
+</html>
